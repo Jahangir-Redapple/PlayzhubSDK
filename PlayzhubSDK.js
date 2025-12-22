@@ -9,19 +9,20 @@
     //     script.async = false;
     //     document.head.appendChild(script);
     // })();
-
     function loadCryptoJS() {
         return new Promise((resolve, reject) => {
             if (window.CryptoJS) return resolve();
 
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js';
-            script.onload = () => resolve();
+            script.onload = () => {
+                console.log('✅ CryptoJS loaded');
+                resolve();
+            };
             script.onerror = reject;
             document.head.appendChild(script);
         });
     }
-
     class PlayzhubSDk_E6 {
         constructor() {
             this.baseUrl = 'https://feature-api.playzhub.com';
@@ -465,13 +466,11 @@
         //#endregion
 
     }
-    window.PlayzhubSDk = new PlayzhubSDk_E6();
-    // (async function bootstrap() {
-    //     await loadCryptoJS();
-    //     window.PlayzhubSDk = new PlayzhubSDk_E6();
-    // })();
-    (async function () {
+    // window.PlayzhubSDk = new PlayzhubSDk_E6();
+    (async function bootstrap() {
         await loadCryptoJS();
         window.PlayzhubSDk = new PlayzhubSDk_E6();
+        window.dispatchEvent(new Event('PlayzhubSDKReady'));
+        console.log('✅ PlayzhubSDK initialized');
     })();
 })();
