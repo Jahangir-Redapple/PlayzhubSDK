@@ -9,6 +9,7 @@
     //     script.async = false;
     //     document.head.appendChild(script);
     // })();
+
     function loadCryptoJS() {
         return new Promise((resolve, reject) => {
             if (window.CryptoJS) return resolve();
@@ -464,8 +465,12 @@
         //#endregion
 
     }
-    // window.PlayzhubSDk = new PlayzhubSDk_E6();
-    (async function bootstrap() {
+    window.PlayzhubSDk = new PlayzhubSDk_E6();
+    // (async function bootstrap() {
+    //     await loadCryptoJS();
+    //     window.PlayzhubSDk = new PlayzhubSDk_E6();
+    // })();
+    (async function () {
         await loadCryptoJS();
         window.PlayzhubSDk = new PlayzhubSDk_E6();
     })();
