@@ -1,14 +1,6 @@
 /* global navigator, window, console, JSBridge */
 /* eslint-disable */
 (function () {
-    // (function loadCryptoJS() {
-    //     if (window.CryptoJS) return;
-
-    //     const script = document.createElement('script');
-    //     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js';
-    //     script.async = false;
-    //     document.head.appendChild(script);
-    // })();
     function loadCryptoJS() {
         return new Promise((resolve, reject) => {
             if (window.CryptoJS) return resolve();
@@ -376,7 +368,6 @@
             );
             console.log('HandleGameStateFetchApi GetGameState: ', response);
             const gameState = response?.data?.game_state ?? null;
-            // this.sendMessageForAnalytics('ReceivedGameState', response.data.game_state);
             this.sendMessageForAnalytics('ReceivedGameState', gameState);
         };
 
