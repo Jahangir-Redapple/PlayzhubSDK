@@ -329,6 +329,7 @@
             } catch (error) { }
         };
 
+        //region- Call API as per event 
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
             console.log('callApiAsPerEvent params...........', gameParams);
@@ -349,6 +350,7 @@
                     break;
             }
         };
+        //endregion
 
         async handleGameStateFetchApi(_payload, gameParams) {
             this.initializeKey(_payload.encKey, _payload.iv);
@@ -373,8 +375,9 @@
                 _payload.request_game_state_hash
             );
             console.log('HandleGameStateFetchApi GetGameState: ', response);
-
-            this.sendMessageForAnalytics('ReceivedGameState', response.data.game_state);
+            const gameState = response?.data?.game_state ?? null;
+            // this.sendMessageForAnalytics('ReceivedGameState', response.data.game_state);
+            this.sendMessageForAnalytics('ReceivedGameState', gameState);
         };
 
         async handleGameScoreUpdateApi(_payload, gameParams) {
