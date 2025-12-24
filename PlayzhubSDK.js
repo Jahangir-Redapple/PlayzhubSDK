@@ -448,24 +448,39 @@
         };
         //#endregion
 
-        ensureCryptoInitialized(encKey, iv) {
-            if (this.cryptoReady) return Promise.resolve();
+        async ensureCryptoInitialized(encKey, iv) {
+            // if (this.cryptoReady) return Promise.resolve();
+
+            // if (!encKey || !iv) {
+            //     return Promise.reject(
+            //         new Error("Crypto initialization failed")
+            //     );
+            // }
+            if (this.cryptoReady) return;
 
             if (!encKey || !iv) {
-                return Promise.reject(
-                    new Error("Crypto initialization failed")
-                );
+                throw new Error("Crypto initialization failed: key/iv missing");
             }
 
-            if (!this.cryptoInitPromise) {
-                this.cryptoInitPromise = new Promise((resolve) => {
-                    this.initializeKey(encKey, iv);
-                    this.cryptoReady = true;
-                    resolve();
-                });
+            await loadCryptoJS();
+
+            if (!window.CryptoJS || !window.CryptoJS.AES) {
+                throw new Error("CryptoJS AES still missing after load");
             }
 
-            return this.cryptoInitPromise;
+            this.initializeKey(encKey, iv);
+            this.cryptoReady = true;
+            console.log("✅ Crypto fully initialized");
+
+            // if (!this.cryptoInitPromise) {
+            //     this.cryptoInitPromise = new Promise((resolve) => {
+            //         this.initializeKey(encKey, iv);
+            //         this.cryptoReady = true;
+            //         resolve();
+            //     });
+            // }
+
+            // return this.cryptoInitPromise;
         };
 
 
@@ -488,7 +503,9 @@
             //     console.error('Encryption key/IV not initialized');
             //     return null;
             // }
-            if (!this.cryptoReady || !this.key || !this.iv) {
+
+
+            if (!this.cryptoReady || !this.key || !this.iv || !window.CryptoJS || !window.CryptoJS.AES) {
                 throw new Error(
                     "encrypt() called before crypto initialization"
                 );
@@ -500,6 +517,9 @@
             }).toString(); // Base64 ciphertext
         };
         decrypt(ciphertext) {
+            if (!window.CryptoJS || !window.CryptoJS.AES) {
+                throw new Error("decrypt() called before CryptoJS AES ready");
+            }
             const decrypted = window.CryptoJS.AES.decrypt(ciphertext, this.key, {
                 iv: this.iv,
                 mode: CryptoJS.mode.CBC,
