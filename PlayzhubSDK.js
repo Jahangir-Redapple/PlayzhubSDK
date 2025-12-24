@@ -108,9 +108,9 @@
         };
 
         // Emit an event to be sent to the platform
-        emitEvent(eventName, payload) {
+        async emitEvent(eventName, payload) {
             // console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
-            this.callApiAsPerEvent(eventName, payload);
+            await this.callApiAsPerEvent(eventName, payload);
             this.sendMessageForAnalytics(eventName, payload);
         };
 
@@ -339,6 +339,9 @@
             console.log('callApiAsPerEvent _payload...........', _payload);
             if (_payload?.encKey && _payload?.iv) {
                 await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
+            } else if (!this.cryptoReady) {
+                console.error("Missing crypto keys in payload");
+                return;
             }
             switch (_eventName) {
                 case 'RequestGameState':
