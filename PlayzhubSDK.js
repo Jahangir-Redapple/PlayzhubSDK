@@ -23,7 +23,10 @@
             this.getGameStateApiURL = '/get-visitor-game-state';
             this.saveGameStateApiURL = '/save-visitor-game-state';
             this.signingServiceUrl = "https://feature-api.playzhub.com/sec/sign-request"
-
+            this.key = null;
+            this.iv = null;
+            this.cryptoReady = false;
+            this.cryptoInitPromise = null;
             this.listeners = {};
             this.setupMessageListener();
         };
@@ -195,7 +198,15 @@
                     path: isAdRoute ? temp : path,
                     body,
                 });
+                // const payload = this.encrypt(serializedBody);
+
+                if (!this.cryptoReady) {
+                    throw new Error(
+                        "getData() called before crypto initialization"
+                    );
+                }
                 const payload = this.encrypt(serializedBody);
+
                 const signRes = await fetch(this.signingServiceUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -325,6 +336,10 @@
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
             console.log('callApiAsPerEvent params...........', gameParams);
+            console.log('callApiAsPerEvent _payload...........', _payload);
+            if (_payload?.encKey && _payload?.iv) {
+                await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
+            }
             switch (_eventName) {
                 case 'RequestGameState':
                     await this.handleGameStateFetchApi(_payload, gameParams);
@@ -345,7 +360,7 @@
         //endregion
 
         async handleGameStateFetchApi(_payload, gameParams) {
-            await this.initializeKey(_payload.encKey, _payload.iv);
+            // this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleGameStateFetchApi _payload...........', _payload);
             console.log('handleGameStateFetchApi params...........', gameParams);
             const gameId = gameParams.game_id;
@@ -373,7 +388,7 @@
         };
 
         async handleGameScoreUpdateApi(_payload, gameParams) {
-            await this.initializeKey(_payload.encKey, _payload.iv);
+            // this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleGameScoreUpdateApi _payload...........', _payload);
             console.log('handleGameScoreUpdateApi params...........', gameParams);
             const gameId = gameParams.game_id;
@@ -400,7 +415,7 @@
         };
 
         async handleSaveGameStateApi(_payload, gameParams) {
-            await this.initializeKey(_payload.encKey, _payload.iv);
+            // this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleSaveGameStateApi _payload...........', _payload);
             console.log('handleSaveGameStateApi params...........', gameParams);
             const gameId = gameParams.game_id;
@@ -427,8 +442,29 @@
         };
         //#endregion
 
+        ensureCryptoInitialized(encKey, iv) {
+            if (this.cryptoReady) return Promise.resolve();
+
+            if (!encKey || !iv) {
+                return Promise.reject(
+                    new Error("Crypto initialization failed")
+                );
+            }
+
+            if (!this.cryptoInitPromise) {
+                this.cryptoInitPromise = new Promise((resolve) => {
+                    this.initializeKey(encKey, iv);
+                    this.cryptoReady = true;
+                    resolve();
+                });
+            }
+
+            return this.cryptoInitPromise;
+        };
+
+
         //#region-Crypto Part
-        async initializeKey(_base64Key, _base64Iv) {
+        initializeKey(_base64Key, _base64Iv) {
             console.log('_base64Key: ', _base64Key);
             console.log('_base64Iv: ', _base64Iv);
 
@@ -442,9 +478,14 @@
             console.log('this.iv : ', this.iv);
         };
         encrypt(plaintext) {
-            if (!this.key || !this.iv) {
-                console.error('Encryption key/IV not initialized');
-                return null;
+            // if (!this.key || !this.iv) {
+            //     console.error('Encryption key/IV not initialized');
+            //     return null;
+            // }
+            if (!this.cryptoReady || !this.key || !this.iv) {
+                throw new Error(
+                    "encrypt() called before crypto initialization"
+                );
             }
             return CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
