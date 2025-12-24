@@ -340,22 +340,40 @@
             const gameParams = JSON.parse(this.getLaunchParams());
             console.log('callApiAsPerEvent params...........', gameParams);
             console.log('callApiAsPerEvent _payload...........', _payload);
-            if (_payload?.encKey && _payload?.iv) {
-                await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
-            } else if (!this.cryptoReady) {
-                console.error("Missing crypto keys in payload");
-                return;
-            }
+            // if (_payload?.encKey && _payload?.iv) {
+            //     await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
+            // } else if (!this.cryptoReady) {
+            //     console.error("Missing crypto keys in payload");
+            //     return;
+            // }
             switch (_eventName) {
                 case 'RequestGameState':
+                    if (_payload?.encKey && _payload?.iv) {
+                        await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
+                    } else if (!this.cryptoReady) {
+                        console.error("Missing crypto keys in payload");
+                        return;
+                    }
                     await this.handleGameStateFetchApi(_payload, gameParams);
                     break;
 
                 case 'GameScoreUpdate':
+                    if (_payload?.encKey && _payload?.iv) {
+                        await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
+                    } else if (!this.cryptoReady) {
+                        console.error("Missing crypto keys in payload");
+                        return;
+                    }
                     await this.handleGameScoreUpdateApi(_payload, gameParams);
                     break;
 
                 case 'GameStateUpdate':
+                    if (_payload?.encKey && _payload?.iv) {
+                        await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
+                    } else if (!this.cryptoReady) {
+                        console.error("Missing crypto keys in payload");
+                        return;
+                    }
                     await this.handleSaveGameStateApi(_payload, gameParams);
                     break;
 
