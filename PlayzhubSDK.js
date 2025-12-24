@@ -345,7 +345,8 @@
         //endregion
 
         async handleGameStateFetchApi(_payload, gameParams) {
-            this.initializeKey(_payload.encKey, _payload.iv);
+            await this.initializeKey(_payload.encKey, _payload.iv);
+            console.log('handleGameStateFetchApi _payload...........', _payload);
             console.log('handleGameStateFetchApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -372,7 +373,8 @@
         };
 
         async handleGameScoreUpdateApi(_payload, gameParams) {
-            this.initializeKey(_payload.encKey, _payload.iv);
+            await this.initializeKey(_payload.encKey, _payload.iv);
+            console.log('handleGameScoreUpdateApi _payload...........', _payload);
             console.log('handleGameScoreUpdateApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -398,7 +400,8 @@
         };
 
         async handleSaveGameStateApi(_payload, gameParams) {
-            this.initializeKey(_payload.encKey, _payload.iv);
+            await this.initializeKey(_payload.encKey, _payload.iv);
+            console.log('handleSaveGameStateApi _payload...........', _payload);
             console.log('handleSaveGameStateApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -425,7 +428,7 @@
         //#endregion
 
         //#region-Crypto Part
-        initializeKey(_base64Key, _base64Iv) {
+        async initializeKey(_base64Key, _base64Iv) {
             console.log('_base64Key: ', _base64Key);
             console.log('_base64Iv: ', _base64Iv);
 
