@@ -456,8 +456,8 @@
             //     console.error('CryptoJS not loaded');
             //     return;
             // }
-            if (!window.CryptoJS || !CryptoJS.AES || !this.key || !this.iv) {
-                throw new Error("Crypto not ready (CryptoJS/key/iv missing)");
+            if (!window.CryptoJS || !CryptoJS.AES) {
+                throw new Error("CryptoJS not loaded");
             }
             this.key = CryptoJS.enc.Base64.parse(_base64Key);
             this.iv = CryptoJS.enc.Base64.parse(_base64Iv);
@@ -469,8 +469,8 @@
             //     console.error('Encryption key/IV not initialized');
             //     return null;
             // }
-            while (!window.CryptoJS || !CryptoJS.AES) {
-                await new Promise(r => setTimeout(r, 10));
+            if (!this.key || !this.iv) {
+                throw new Error("API called before crypto initialization");
             }
             return CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
