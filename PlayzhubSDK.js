@@ -3,15 +3,12 @@
 (function () {
     function loadCryptoJS() {
         return new Promise((resolve, reject) => {
-            // if (window.CryptoJS) return resolve();
-            if (window.CryptoJS && window.CryptoJS.AES) {
-                return resolve();
-            }
+            if (window.CryptoJS) return resolve();
 
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js';
             script.onload = () => {
-                console.log('✅ CryptoJS loaded');
+                console.log('âœ… CryptoJS loaded');
                 resolve();
             };
             script.onerror = reject;
@@ -28,8 +25,6 @@
             this.signingServiceUrl = "https://feature-api.playzhub.com/sec/sign-request"
             this.key = null;
             this.iv = null;
-            this.cryptoReady = false;
-            this.cryptoInitPromise = null;
             this.listeners = {};
             this.setupMessageListener();
         };
@@ -112,7 +107,7 @@
 
         // Emit an event to be sent to the platform
         async emitEvent(eventName, payload) {
-            // console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
+            console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
             await this.callApiAsPerEvent(eventName, payload);
             this.sendMessageForAnalytics(eventName, payload);
         };
@@ -201,15 +196,7 @@
                     path: isAdRoute ? temp : path,
                     body,
                 });
-                // const payload = this.encrypt(serializedBody);
-
-                if (!this.cryptoReady) {
-                    throw new Error(
-                        "getData() called before crypto initialization"
-                    );
-                }
                 const payload = this.encrypt(serializedBody);
-
                 const signRes = await fetch(this.signingServiceUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -338,42 +325,19 @@
         //region- Call API as per event 
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
-            console.log('callApiAsPerEvent params...........', gameParams);
+            console.log('callApiAsPerEvent _eventName...........', _eventName);
             console.log('callApiAsPerEvent _payload...........', _payload);
-            // if (_payload?.encKey && _payload?.iv) {
-            //     await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
-            // } else if (!this.cryptoReady) {
-            //     console.error("Missing crypto keys in payload");
-            //     return;
-            // }
+            console.log('callApiAsPerEvent gameParams...........', gameParams);
             switch (_eventName) {
                 case 'RequestGameState':
-                    if (_payload?.encKey && _payload?.iv) {
-                        await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
-                    } else if (!this.cryptoReady) {
-                        console.error("Missing crypto keys in payload");
-                        return;
-                    }
                     await this.handleGameStateFetchApi(_payload, gameParams);
                     break;
 
                 case 'GameScoreUpdate':
-                    if (_payload?.encKey && _payload?.iv) {
-                        await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
-                    } else if (!this.cryptoReady) {
-                        console.error("Missing crypto keys in payload");
-                        return;
-                    }
                     await this.handleGameScoreUpdateApi(_payload, gameParams);
                     break;
 
                 case 'GameStateUpdate':
-                    if (_payload?.encKey && _payload?.iv) {
-                        await this.ensureCryptoInitialized(_payload.encKey, _payload.iv);
-                    } else if (!this.cryptoReady) {
-                        console.error("Missing crypto keys in payload");
-                        return;
-                    }
                     await this.handleSaveGameStateApi(_payload, gameParams);
                     break;
 
@@ -385,7 +349,6 @@
 
         async handleGameStateFetchApi(_payload, gameParams) {
             // this.initializeKey(_payload.encKey, _payload.iv);
-            console.log('handleGameStateFetchApi _payload...........', _payload);
             console.log('handleGameStateFetchApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -413,7 +376,6 @@
 
         async handleGameScoreUpdateApi(_payload, gameParams) {
             // this.initializeKey(_payload.encKey, _payload.iv);
-            console.log('handleGameScoreUpdateApi _payload...........', _payload);
             console.log('handleGameScoreUpdateApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -440,7 +402,6 @@
 
         async handleSaveGameStateApi(_payload, gameParams) {
             // this.initializeKey(_payload.encKey, _payload.iv);
-            console.log('handleSaveGameStateApi _payload...........', _payload);
             console.log('handleSaveGameStateApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -466,46 +427,10 @@
         };
         //#endregion
 
-        async ensureCryptoInitialized(encKey, iv) {
-            // if (this.cryptoReady) return Promise.resolve();
-
-            // if (!encKey || !iv) {
-            //     return Promise.reject(
-            //         new Error("Crypto initialization failed")
-            //     );
-            // }
-            if (this.cryptoReady) return;
-
-            if (!encKey || !iv) {
-                throw new Error("Crypto initialization failed: key/iv missing");
-            }
-
-            await loadCryptoJS();
-
-            if (!window.CryptoJS || !window.CryptoJS.AES) {
-                throw new Error("CryptoJS AES still missing after load");
-            }
-
-            this.initializeKey(encKey, iv);
-            this.cryptoReady = true;
-            console.log("✅ Crypto fully initialized");
-
-            // if (!this.cryptoInitPromise) {
-            //     this.cryptoInitPromise = new Promise((resolve) => {
-            //         this.initializeKey(encKey, iv);
-            //         this.cryptoReady = true;
-            //         resolve();
-            //     });
-            // }
-
-            // return this.cryptoInitPromise;
-        };
-
-
         //#region-Crypto Part
         initializeKey(_base64Key, _base64Iv) {
-            console.log('_base64Key: ', _base64Key);
-            console.log('_base64Iv: ', _base64Iv);
+            console.log('initializeKey enc key: ', _base64Key);
+            console.log('initializeKey public Iv: ', _base64Iv);
 
             if (!window.CryptoJS) {
                 console.error('CryptoJS not loaded');
@@ -517,28 +442,18 @@
             console.log('this.iv : ', this.iv);
         };
         encrypt(plaintext) {
-            // if (!this.key || !this.iv) {
-            //     console.error('Encryption key/IV not initialized');
-            //     return null;
-            // }
-
-
-            if (!this.cryptoReady || !this.key || !this.iv || !window.CryptoJS || !window.CryptoJS.AES) {
-                throw new Error(
-                    "encrypt() called before crypto initialization"
-                );
+            if (!this.key || !this.iv) {
+                console.error('Encryption key/IV not initialized');
+                return null;
             }
-            return window.CryptoJS.AES.encrypt(plaintext, this.key, {
+            return CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
                 mode: CryptoJS.mode.CBC,
                 padding: CryptoJS.pad.Pkcs7
             }).toString(); // Base64 ciphertext
         };
         decrypt(ciphertext) {
-            if (!window.CryptoJS || !window.CryptoJS.AES) {
-                throw new Error("decrypt() called before CryptoJS AES ready");
-            }
-            const decrypted = window.CryptoJS.AES.decrypt(ciphertext, this.key, {
+            const decrypted = CryptoJS.AES.decrypt(ciphertext, this.key, {
                 iv: this.iv,
                 mode: CryptoJS.mode.CBC,
                 padding: CryptoJS.pad.Pkcs7,
@@ -553,6 +468,6 @@
         await loadCryptoJS();
         window.PlayzhubSDk = new PlayzhubSDk_E6();
         window.dispatchEvent(new Event('PlayzhubSDKReady'));
-        console.log('✅ PlayzhubSDK initialized');
+        console.log('âœ… PlayzhubSDK initialized');
     })();
 })();
