@@ -439,9 +439,12 @@
             console.log('this.iv : ', this.iv);
         };
         encrypt(plaintext) {
+            // if (!this.key || !this.iv) {
+            //     console.error('Encryption key/IV not initialized');
+            //     return null;
+            // }
             if (!this.key || !this.iv) {
-                console.error('Encryption key/IV not initialized');
-                return null;
+                throw new Error("Encryption key not initialized before API call");
             }
             return CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
