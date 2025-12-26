@@ -112,7 +112,16 @@
                 return;
             }
             console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
-            await this.callApiAsPerEvent(eventName, payload);
+            const apiEvents = [
+                "RequestGameState",
+                "GameScoreUpdate",
+                "GameStateUpdate"
+            ];
+
+            if (apiEvents.includes(eventName)) {
+                await this.callApiAsPerEvent(eventName, payload);
+            }
+            // await this.callApiAsPerEvent(eventName, payload);
             this.sendMessageForAnalytics(eventName, payload);
         };
 
@@ -332,6 +341,9 @@
 
         //region- Call API as per event 
         async callApiAsPerEvent(_eventName, _payload,) {
+            if (!_payload || !_payload.encKey || !_payload.iv) {
+                throw new Error(`Missing encryption data for ${_eventName}`);
+            }
             const gameParams = JSON.parse(this.getLaunchParams());
             console.log('callApiAsPerEvent _eventName...........', _eventName);
             console.log('callApiAsPerEvent _payload...........', _payload);
