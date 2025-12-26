@@ -107,6 +107,10 @@
 
         // Emit an event to be sent to the platform
         async emitEvent(eventName, payload) {
+            if (!window.CryptoJS) {
+                console.warn("SDK crypto not ready, skipping:", eventName);
+                return;
+            }
             console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
             await this.callApiAsPerEvent(eventName, payload);
             this.sendMessageForAnalytics(eventName, payload);
@@ -442,9 +446,12 @@
             console.log('this.iv : ', this.iv);
         };
         async encrypt(plaintext) {
-            if (!this.key || !this.iv) {
-                console.error('Encryption key/IV not initialized');
-                return null;
+            // if (!this.key || !this.iv) {
+            //     console.error('Encryption key/IV not initialized');
+            //     return null;
+            // }
+            if (!window.CryptoJS || !this.key || !this.iv) {
+                throw new Error("CryptoJS or key/iv not ready");
             }
             return CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
