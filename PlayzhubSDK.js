@@ -196,7 +196,7 @@
                     path: isAdRoute ? temp : path,
                     body,
                 });
-                const payload = this.encrypt(serializedBody);
+                const payload = await this.encrypt(serializedBody);
                 const signRes = await fetch(this.signingServiceUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -441,7 +441,7 @@
             console.log('this.key: ', this.key);
             console.log('this.iv : ', this.iv);
         };
-        encrypt(plaintext) {
+        async encrypt(plaintext) {
             if (!this.key || !this.iv) {
                 console.error('Encryption key/IV not initialized');
                 return null;
