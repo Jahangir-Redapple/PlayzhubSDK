@@ -472,14 +472,14 @@
             if (!this.key || !this.iv) {
                 throw new Error("API called before crypto initialization");
             }
-            return CryptoJS.AES.encrypt(plaintext, this.key, {
+            return window.CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
                 mode: CryptoJS.mode.CBC,
                 padding: CryptoJS.pad.Pkcs7
             }).toString(); // Base64 ciphertext
         };
         decrypt(ciphertext) {
-            const decrypted = CryptoJS.AES.decrypt(ciphertext, this.key, {
+            const decrypted = window.CryptoJS.AES.decrypt(ciphertext, this.key, {
                 iv: this.iv,
                 mode: CryptoJS.mode.CBC,
                 padding: CryptoJS.pad.Pkcs7,
