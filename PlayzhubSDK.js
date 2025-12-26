@@ -175,6 +175,10 @@
             const method = options.method || "GET";
             let body = options.body || null;
 
+            if (!this.key || !this.iv) {
+                throw new Error("Encryption key not initialized before API call");
+            }
+
             const originalHeaders =
                 options.headers instanceof Headers
                     ? Object.fromEntries(options.headers.entries())
@@ -436,9 +440,12 @@
             console.log('initializeKey enc key: ', _base64Key);
             console.log('initializeKey public Iv: ', _base64Iv);
 
-            if (!window.CryptoJS) {
-                console.error('CryptoJS not loaded');
-                return;
+            // if (!window.CryptoJS) {
+            //     console.error('CryptoJS not loaded');
+            //     return;
+            // }
+            if (!window.CryptoJS || !CryptoJS.AES || !this.key || !this.iv) {
+                throw new Error("Crypto not ready (CryptoJS/key/iv missing)");
             }
             this.key = CryptoJS.enc.Base64.parse(_base64Key);
             this.iv = CryptoJS.enc.Base64.parse(_base64Iv);
@@ -450,8 +457,8 @@
             //     console.error('Encryption key/IV not initialized');
             //     return null;
             // }
-            if (!window.CryptoJS || !this.key || !this.iv) {
-                throw new Error("CryptoJS or key/iv not ready");
+            while (!window.CryptoJS || !CryptoJS.AES) {
+                await new Promise(r => setTimeout(r, 10));
             }
             return CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
