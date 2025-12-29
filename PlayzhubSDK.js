@@ -15,7 +15,7 @@
             document.head.appendChild(script);
         });
     }
-    class PlayzhubSDk_E6 {
+    class PlayzhubSDk {
         constructor() {
             this.baseUrl = 'https://feature-api.playzhub.com';
             this.verifySessionApiURL = '/verified-session';
@@ -105,10 +105,10 @@
         };
 
         // Emit an event to be sent to the platform
-        emitEvent(eventName, payload) {
-            // console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
-            this.callApiAsPerEvent(eventName, payload);
+        async emitEvent(eventName, payload) {
+            console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
             this.sendMessageForAnalytics(eventName, payload);
+            await this.callApiAsPerEvent(eventName, payload);
         };
 
         // Listen for incoming events and parse the data
@@ -195,7 +195,7 @@
                     path: isAdRoute ? temp : path,
                     body,
                 });
-                const payload = this.encrypt(serializedBody);
+                const payload = await this.encrypt(serializedBody);
                 const signRes = await fetch(this.signingServiceUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -324,7 +324,7 @@
         //region- Call API as per event 
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
-            console.log('callApiAsPerEvent params...........', gameParams);
+            // console.log('callApiAsPerEvent params...........', gameParams);
             switch (_eventName) {
                 case 'RequestGameState':
                     await this.handleGameStateFetchApi(_payload, gameParams);
@@ -345,7 +345,7 @@
         //endregion
 
         async handleGameStateFetchApi(_payload, gameParams) {
-            this.initializeKey(_payload.encKey, _payload.iv);
+            await this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleGameStateFetchApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -372,7 +372,7 @@
         };
 
         async handleGameScoreUpdateApi(_payload, gameParams) {
-            this.initializeKey(_payload.encKey, _payload.iv);
+            await this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleGameScoreUpdateApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -398,7 +398,7 @@
         };
 
         async handleSaveGameStateApi(_payload, gameParams) {
-            this.initializeKey(_payload.encKey, _payload.iv);
+            await this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleSaveGameStateApi params...........', gameParams);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -425,9 +425,9 @@
         //#endregion
 
         //#region-Crypto Part
-        initializeKey(_base64Key, _base64Iv) {
-            console.log('initializeKey enc: ', _base64Key);
-            console.log('initializeKey iv: ', _base64Iv);
+        async initializeKey(_base64Key, _base64Iv) {
+            console.log('initializeKey KEY: ', _base64Key);
+            console.log('initializeKey IV: ', _base64Iv);
 
             if (!window.CryptoJS) {
                 console.error('CryptoJS not loaded');
@@ -435,16 +435,13 @@
             }
             this.key = CryptoJS.enc.Base64.parse(_base64Key);
             this.iv = CryptoJS.enc.Base64.parse(_base64Iv);
-            console.log('this.key: ', this.key);
-            console.log('this.iv : ', this.iv);
+            console.log('initializeKey this.key: ', this.key);
+            console.log('initializeKey this.iv : ', this.iv);
         };
-        encrypt(plaintext) {
-            // if (!this.key || !this.iv) {
-            //     console.error('Encryption key/IV not initialized');
-            //     return null;
-            // }
+        async encrypt(plaintext) {
             if (!this.key || !this.iv) {
-                throw new Error("Encryption key not initialized before API call");
+                console.error('Encryption key/IV not initialized');
+                return null;
             }
             return CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
@@ -466,8 +463,8 @@
     // window.PlayzhubSDk = new PlayzhubSDk_E6();
     (async function bootstrap() {
         await loadCryptoJS();
-        window.PlayzhubSDk = new PlayzhubSDk_E6();
+        window.PlayzhubSDk = new PlayzhubSDk();
         window.dispatchEvent(new Event('PlayzhubSDKReady'));
-        console.log('SDK PlayzhubSDK initialized');
+        console.log('PlayzhubSDK initialized');
     })();
 })();
