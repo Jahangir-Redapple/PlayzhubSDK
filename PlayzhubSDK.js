@@ -19,7 +19,8 @@
                     reject("CryptoJS loaded but AES missing");
                 }
             };
-            script.onerror = reject("Failed to load CryptoJS");
+            // script.onerror = reject();
+            script.onerror = () => reject("Failed to load CryptoJS");
             document.head.appendChild(script);
         });
     }
