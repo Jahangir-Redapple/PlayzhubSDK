@@ -3,15 +3,23 @@
 (function () {
     function loadCryptoJS() {
         return new Promise((resolve, reject) => {
-            if (window.CryptoJS) return resolve();
-
+            // if (window.CryptoJS) return resolve();
+            if (window.CryptoJS && window.CryptoJS.AES) {
+                return resolve();
+            }
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js';
+            script.async = true;
             script.onload = () => {
-                console.log('âœ… CryptoJS loaded');
-                resolve();
+                // console.log('CryptoJS loaded');
+                // resolve();
+                if (window.CryptoJS && window.CryptoJS.AES) {
+                    resolve();
+                } else {
+                    reject("CryptoJS loaded but AES missing");
+                }
             };
-            script.onerror = reject;
+            script.onerror = reject("Failed to load CryptoJS");
             document.head.appendChild(script);
         });
     }
@@ -48,7 +56,7 @@
             switch (os) {
                 case 'Android':
                     try {
-                        console.log(`Android - ${eventName} called`, data);
+                        // console.log(`Android - ${eventName} called`, data);
                         // window.parent.postMessage({ eventName, data }, '*');
                         window.postMessage({ eventName, data }, '*');
                         if (window.flutter_inappwebview) {
@@ -63,7 +71,7 @@
 
                 case 'iOS':
                     try {
-                        console.log(`iOS - ${eventName} called`, data);
+                        // console.log(`iOS - ${eventName} called`, data);
                         // window.parent.postMessage({ eventName, data }, '*');
                         window.postMessage({ eventName, data }, '*');
                         const postData = { [eventName]: data };
@@ -80,7 +88,7 @@
 
                 case 'Browser':
                     try {
-                        console.log(`Browser - ${eventName} called`, data);
+                        // console.log(`Browser - ${eventName} called`, data);
                         // window.parent.postMessage({ eventName, data }, '*');
                         window.postMessage({ eventName, data }, '*');
                         if (window.flutter_inappwebview) {
@@ -93,7 +101,7 @@
 
                 default:
                     try {
-                        console.log(`Default - ${eventName} called`, data);
+                        // console.log(`Default - ${eventName} called`, data);
                         window.postMessage({ eventName, data }, '*');
                         if (window.flutter_inappwebview) {
                             window.flutter_inappwebview.callHandler('playzhubsdk_event_handler', eventName, data);
@@ -443,14 +451,18 @@
                 console.error('Encryption key/IV not initialized');
                 return null;
             }
-            return CryptoJS.AES.encrypt(plaintext, this.key, {
+            if (!window.CryptoJS.AES) {
+                console.error('Encryption CryptoJS.AES not initialized');
+                return null;
+            }
+            return window.CryptoJS.AES.encrypt(plaintext, this.key, {
                 iv: this.iv,
                 mode: CryptoJS.mode.CBC,
                 padding: CryptoJS.pad.Pkcs7
             }).toString(); // Base64 ciphertext
         };
         decrypt(ciphertext) {
-            const decrypted = CryptoJS.AES.decrypt(ciphertext, this.key, {
+            const decrypted = window.CryptoJS.AES.decrypt(ciphertext, this.key, {
                 iv: this.iv,
                 mode: CryptoJS.mode.CBC,
                 padding: CryptoJS.pad.Pkcs7,
@@ -462,9 +474,13 @@
     }
     // window.PlayzhubSDk = new PlayzhubSDk_E6();
     (async function bootstrap() {
-        await loadCryptoJS();
-        window.PlayzhubSDk = new PlayzhubSDk();
-        window.dispatchEvent(new Event('PlayzhubSDKReady'));
-        console.log('PlayzhubSDK initialized');
+        try {
+            await loadCryptoJS();
+            window.PlayzhubSDk = new PlayzhubSDk();
+            window.dispatchEvent(new Event('PlayzhubSDKReady'));
+            console.log('PlayzhubSDK initialized');
+        } catch (err) {
+            console.error("[PlayzhubSDK ERROR]", err);
+        }
     })();
 })();
