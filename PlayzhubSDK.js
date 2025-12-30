@@ -496,6 +496,7 @@
         async handleSaveGameStateApi(_payload, gameParams) {
             await this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleSaveGameStateApi params...........', gameParams);
+            console.log('handleSaveGameStateApi _payload...........', _payload);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
@@ -513,9 +514,14 @@
             }
 
             let gameState = _payload.game_state;
+            console.log("gameState..............", gameState);
+            console.log("typeof gameState..............", typeof gameState);
+
             if (typeof gameState === "string") {
                 try {
                     gameState = JSON.parse(gameState);
+                    console.log("gameState inside try...", gameState);
+
                 } catch (e) {
                     console.error("[PlayzhubSDK] Invalid game_state JSON", e);
                     gameState = null;
