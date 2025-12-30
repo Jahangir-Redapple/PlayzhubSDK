@@ -3,7 +3,6 @@
 (function () {
     function loadCryptoJS() {
         return new Promise((resolve, reject) => {
-            // if (window.CryptoJS) return resolve();
             if (window.CryptoJS && window.CryptoJS.AES) {
                 return resolve();
             }
@@ -11,8 +10,6 @@
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js';
             script.async = true;
             script.onload = () => {
-                // console.log('CryptoJS loaded');
-                // resolve();
                 if (window.CryptoJS && window.CryptoJS.AES) {
                     resolve();
                 } else {
@@ -31,6 +28,10 @@
             this.submitScoreApiURL = '/save-game-session';
             this.getGameStateApiURL = '/get-visitor-game-state';
             this.saveGameStateApiURL = '/save-visitor-game-state';
+
+            this.submitEventScoreApiURL = '/insert-event-game-session';
+            this.getEventGameStateApiURL = '/get-visitor-event-game-state';
+            this.saveEventGameStateApiURL = '/save-event-visitor-state';
             this.signingServiceUrl = "https://feature-api.playzhub.com/sec/sign-request"
 
             this.listeners = {};
@@ -330,10 +331,63 @@
             } catch (error) { }
         };
 
+        //=====================
+        async getGameStateForEvent(_token, _gameId, _eventId, _hashKey) {
+            try {
+                const headers = this.getHeaders("application/json", _token);
+                const body = {
+                    'game_id': _gameId,
+                    'event_id': _eventId,
+                    'hash': _hashKey
+                };
+                return await this.getData(this.getEventGameStateApiURL, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify(body),
+                });
+            } catch (error) { }
+        };
+
+        async saveGameScoreForEvent(_token, _gameId, _eventId, _score, _hashKey) {
+            try {
+                const headers = this.getHeaders("application/json", _token);
+                const body = {
+                    'game_id': _gameId,
+                    'event_id': _eventId,
+                    'event_score': _score,
+                    'hash': _hashKey
+                };
+                return await this.getData(this.submitEventScoreApiURL, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify(body),
+                });
+            } catch (error) { }
+        };
+
+        async saveGameStateForEvent(_token, _gameId, _eventId, _gameState, _hashKey) {
+            try {
+                const headers = this.getHeaders("application/json", _token);
+                const body = {
+                    'game_id': _gameId,
+                    'event_id': _eventId,
+                    'game_state': _gameState,
+                    'hash': _hashKey
+                };
+                return await this.getData(this.saveEventGameStateApiURL, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify(body),
+                });
+            } catch (error) { }
+        };
+
+        //==============================================
+
         //region- Call API as per event 
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
-            // console.log('callApiAsPerEvent params...........', gameParams);
+            console.log('callApiAsPerEvent params...........', gameParams);
             switch (_eventName) {
                 case 'RequestGameState':
                     await this.handleGameStateFetchApi(_payload, gameParams);
@@ -356,6 +410,7 @@
         async handleGameStateFetchApi(_payload, gameParams) {
             await this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleGameStateFetchApi params...........', gameParams);
+
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
@@ -423,10 +478,20 @@
                 console.error(`Session verification failed`);
                 return;
             }
+
+            let gameState = _payload.game_state;
+            if (typeof gameState === "string") {
+                try {
+                    gameState = JSON.parse(gameState);
+                } catch (e) {
+                    console.error("[PlayzhubSDK] Invalid game_state JSON", e);
+                    gameState = null;
+                }
+            }
             const response = await this.saveGameState(
                 token,
                 gameId,
-                _payload.game_state,
+                _payload.gameState,
                 _payload.request_game_state_hash
             );
             console.log('HandleSaveGameStateApi SaveGameState: ', response);
