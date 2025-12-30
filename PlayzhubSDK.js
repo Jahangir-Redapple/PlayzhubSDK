@@ -336,8 +336,8 @@
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
-                    'game_id': _gameId,
                     'event_id': _eventId,
+                    'game_id': _gameId,
                     'hash': _hashKey
                 };
                 return await this.getData(this.getEventGameStateApiURL, {
@@ -352,9 +352,9 @@
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
-                    'game_id': _gameId,
                     'event_id': _eventId,
                     'event_score': _score,
+                    'game_id': _gameId,
                     'hash': _hashKey
                 };
                 return await this.getData(this.submitEventScoreApiURL, {
@@ -369,9 +369,9 @@
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
-                    'game_id': _gameId,
                     'event_id': _eventId,
-                    'game_state': _gameState,
+                    'game_id': _gameId,
+                    'state': _gameState,
                     'hash': _hashKey
                 };
                 return await this.getData(this.saveEventGameStateApiURL, {
@@ -454,6 +454,7 @@
         async handleGameScoreUpdateApi(_payload, gameParams) {
             await this.initializeKey(_payload.encKey, _payload.iv);
             console.log('handleGameScoreUpdateApi params...........', gameParams);
+            console.log('handleGameScoreUpdateApi _payload...........', _payload);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
