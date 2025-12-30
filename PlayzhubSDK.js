@@ -388,6 +388,8 @@
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
             console.log('callApiAsPerEvent params...........', gameParams);
+            if (gameParams.type !== "real") return;
+
             switch (_eventName) {
                 case 'RequestGameState':
                     await this.handleGameStateFetchApi(_payload, gameParams);
@@ -414,6 +416,7 @@
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
+            const eventId = gameParams.event_id;
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -425,11 +428,24 @@
                 console.error(`Session verification failed`);
                 return;
             }
-            const response = await this.getGameState(
-                token,
-                gameId,
-                _payload.request_game_state_hash
-            );
+
+            const response = eventId
+                ? await this.getGameStateForEvent(
+                    token,
+                    gameId,
+                    eventId,
+                    _payload.request_game_state_hash
+                )
+                : await this.getGameState(
+                    token,
+                    gameId,
+                    _payload.request_game_state_hash
+                );
+            // const response = await this.getGameState(
+            //     token,
+            //     gameId,
+            //     _payload.request_game_state_hash
+            // );
             console.log('HandleGameStateFetchApi GetGameState: ', response);
             const gameState = response?.data?.game_state ?? null;
             this.sendMessageForAnalytics('ReceivedGameState', gameState);
@@ -441,6 +457,7 @@
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
+            const eventId = gameParams.event_id;
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -452,12 +469,27 @@
                 console.error(`Session verification failed`);
                 return;
             }
-            const response = await this.saveGameScore(
-                token,
-                gameId,
-                _payload.score,
-                _payload.score_hash
-            );
+
+            const response = eventId
+                ? await this.saveGameScoreForEvent(
+                    token,
+                    gameId,
+                    eventId,
+                    _payload.score,
+                    _payload.score_hash
+                )
+                : await this.saveGameScore(
+                    token,
+                    gameId,
+                    _payload.score,
+                    _payload.score_hash
+                );
+            // const response = await this.saveGameScore(
+            //     token,
+            //     gameId,
+            //     _payload.score,
+            //     _payload.score_hash
+            // );
             console.log('HandleGameScoreUpdateApi SaveGameScore: ', response);
         };
 
@@ -467,6 +499,7 @@
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
+            const eventId = gameParams.event_id;
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -488,12 +521,28 @@
                     gameState = null;
                 }
             }
-            const response = await this.saveGameState(
-                token,
-                gameId,
-                _payload.gameState,
-                _payload.request_game_state_hash
-            );
+
+            const response = eventId
+                ? await this.saveGameStateForEvent(
+                    token,
+                    gameId,
+                    eventId,
+                    gameState,
+                    _payload.request_game_state_hash
+                )
+                : await this.saveGameState(
+                    token,
+                    gameId,
+                    gameState,
+                    _payload.request_game_state_hash
+                );
+            // const response = await this.saveGameState(
+            //     token,
+            //     gameId,
+            //     gameState,
+            //     // _payload.game_state,
+            //     _payload.request_game_state_hash
+            // );
             console.log('HandleSaveGameStateApi SaveGameState: ', response);
         };
         //#endregion
