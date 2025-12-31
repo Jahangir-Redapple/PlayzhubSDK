@@ -284,10 +284,11 @@
             } catch (error) { }
         };
 
-        async getGameState(_token, _gameId, _hashKey) {
+        async getGameState(_token, _gameId, _eventId, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
+                    'event_id': _eventId,
                     'game_id': _gameId,
                     'hash': _hashKey
                 };
@@ -299,10 +300,11 @@
             } catch (error) { }
         };
 
-        async saveGameScore(_token, _gameId, _score, _hashKey) {
+        async saveGameScore(_token, _gameId, _eventId, _score, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
+                    'event_id': _eventId,
                     'game_id': _gameId,
                     'game_score': _score,
                     'hash': _hashKey
@@ -315,10 +317,11 @@
             } catch (error) { }
         };
 
-        async saveGameState(_token, _gameId, _gameState, _hashKey) {
+        async saveGameState(_token, _gameId, _eventId, _gameState, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
+                    'event_id': _eventId,
                     'game_id': _gameId,
                     'game_state': _gameState,
                     'hash': _hashKey
@@ -429,7 +432,9 @@
                 return;
             }
 
-            const response = eventId
+            const eventIdNum = Number(eventId);
+            const isEventGame = eventIdNum > 0;
+            const response = isEventGame
                 ? await this.getGameStateForEvent(
                     token,
                     gameId,
@@ -439,13 +444,10 @@
                 : await this.getGameState(
                     token,
                     gameId,
+                    eventId,
                     _payload.request_game_state_hash
                 );
-            // const response = await this.getGameState(
-            //     token,
-            //     gameId,
-            //     _payload.request_game_state_hash
-            // );
+
             console.log('HandleGameStateFetchApi GetGameState: ', response);
             const gameState = response?.data?.game_state ?? null;
             this.sendMessageForAnalytics('ReceivedGameState', gameState);
@@ -470,8 +472,9 @@
                 console.error(`Session verification failed`);
                 return;
             }
-
-            const response = eventId
+            const eventIdNum = Number(eventId);
+            const isEventGame = eventIdNum > 0;
+            const response = isEventGame
                 ? await this.saveGameScoreForEvent(
                     token,
                     gameId,
@@ -482,15 +485,10 @@
                 : await this.saveGameScore(
                     token,
                     gameId,
+                    eventId,
                     _payload.score,
                     _payload.score_hash
                 );
-            // const response = await this.saveGameScore(
-            //     token,
-            //     gameId,
-            //     _payload.score,
-            //     _payload.score_hash
-            // );
             console.log('HandleGameScoreUpdateApi SaveGameScore: ', response);
         };
 
@@ -529,7 +527,9 @@
                 }
             }
 
-            const response = eventId
+            const eventIdNum = Number(eventId);
+            const isEventGame = eventIdNum > 0;
+            const response = isEventGame
                 ? await this.saveGameStateForEvent(
                     token,
                     gameId,
@@ -540,16 +540,10 @@
                 : await this.saveGameState(
                     token,
                     gameId,
+                    eventId,
                     gameState,
                     _payload.request_game_state_hash
                 );
-            // const response = await this.saveGameState(
-            //     token,
-            //     gameId,
-            //     gameState,
-            //     // _payload.game_state,
-            //     _payload.request_game_state_hash
-            // );
             console.log('HandleSaveGameStateApi SaveGameState: ', response);
         };
         //#endregion
