@@ -449,7 +449,9 @@
                 );
 
             console.log('HandleGameStateFetchApi GetGameState: ', response);
-            const gameState = response?.data?.game_state ?? null;
+            const gameState = isEventGame
+                ? response?.data?.state ?? null
+                : response?.data?.game_state ?? null;
             this.sendMessageForAnalytics('ReceivedGameState', gameState);
         };
 
