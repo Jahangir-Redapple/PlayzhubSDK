@@ -391,7 +391,7 @@
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
             console.log('callApiAsPerEvent params...........', gameParams);
-            if (gameParams.type !== "real") return;
+            // if (gameParams.type !== "real") return;
 
             switch (_eventName) {
                 case 'RequestGameState':
@@ -399,10 +399,12 @@
                     break;
 
                 case 'GameScoreUpdate':
+                    if (gameParams.type !== "real") return;
                     await this.handleGameScoreUpdateApi(_payload, gameParams);
                     break;
 
                 case 'GameStateUpdate':
+                    if (gameParams.type !== "real") return;
                     await this.handleSaveGameStateApi(_payload, gameParams);
                     break;
 
