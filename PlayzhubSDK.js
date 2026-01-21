@@ -60,7 +60,12 @@
                     try {
                         // console.log(`Android - ${eventName} called`, data);
                         // window.parent.postMessage({ eventName, data }, '*');
-                        window.postMessage({ eventName, data }, '*');
+                        // window.postMessage({ eventName, data }, '*');
+                        const target = window.parent && window.parent !== window
+                            ? window.parent
+                            : window;
+
+                        target.postMessage({ eventName, data }, '*');
                         if (window.flutter_inappwebview) {
                             window.flutter_inappwebview.callHandler('playzhubsdk_event_handler', eventName, data);
                         } else {
@@ -75,7 +80,12 @@
                     try {
                         // console.log(`iOS - ${eventName} called`, data);
                         // window.parent.postMessage({ eventName, data }, '*');
-                        window.postMessage({ eventName, data }, '*');
+                        // window.postMessage({ eventName, data }, '*');
+                        const target = window.parent && window.parent !== window
+                            ? window.parent
+                            : window;
+
+                        target.postMessage({ eventName, data }, '*');
                         const postData = { [eventName]: data };
 
                         if (window.flutter_inappwebview) {
@@ -92,7 +102,12 @@
                     try {
                         // console.log(`Browser - ${eventName} called`, data);
                         // window.parent.postMessage({ eventName, data }, '*');
-                        window.postMessage({ eventName, data }, '*');
+                        // window.postMessage({ eventName, data }, '*');
+                        const target = window.parent && window.parent !== window
+                            ? window.parent
+                            : window;
+
+                        target.postMessage({ eventName, data }, '*');
                         if (window.flutter_inappwebview) {
                             window.flutter_inappwebview.callHandler('playzhubsdk_event_handler', eventName, data);
                         } else { }
@@ -104,7 +119,12 @@
                 default:
                     try {
                         // console.log(`Default - ${eventName} called`, data);
-                        window.postMessage({ eventName, data }, '*');
+                        // window.postMessage({ eventName, data }, '*');
+                        const target = window.parent && window.parent !== window
+                            ? window.parent
+                            : window;
+
+                        target.postMessage({ eventName, data }, '*');
                         if (window.flutter_inappwebview) {
                             window.flutter_inappwebview.callHandler('playzhubsdk_event_handler', eventName, data);
                         } else { }
