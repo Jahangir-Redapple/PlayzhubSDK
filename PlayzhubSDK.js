@@ -23,7 +23,7 @@
     }
     class PlayzhubSDk {
         constructor() {
-            this.baseUrl = 'https://feature-api.playzhub.com';
+            this.baseUrl = 'https://api.playzhub.com';
             this.verifySessionApiURL = '/verified-session';
             this.submitScoreApiURL = '/save-game-session';
             this.getGameStateApiURL = '/get-visitor-game-state';
@@ -32,7 +32,7 @@
             this.submitEventScoreApiURL = '/insert-event-game-session';
             this.getEventGameStateApiURL = '/get-visitor-event-game-state';
             this.saveEventGameStateApiURL = '/save-event-visitor-state';
-            this.signingServiceUrl = "https://feature-api.playzhub.com/sec/sign-request"
+            this.signingServiceUrl = "https://api.playzhub.com/sec/sign-request"
 
             this.listeners = {};
             this.setupMessageListener();
