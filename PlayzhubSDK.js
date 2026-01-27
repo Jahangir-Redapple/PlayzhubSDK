@@ -388,6 +388,8 @@
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
             const eventId = gameParams.event_id;
+            const eventType = gameParams.event_type;
+
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -407,12 +409,14 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.request_game_state_hash
                 )
                 : await this.getGameState(
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.request_game_state_hash
                 );
 
@@ -431,6 +435,8 @@
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
             const eventId = gameParams.event_id;
+            const eventType = gameParams.event_type;
+
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -449,6 +455,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.score,
                     _payload.score_hash
                 )
@@ -456,6 +463,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.score,
                     _payload.score_hash
                 );
@@ -470,6 +478,8 @@
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
             const eventId = gameParams.event_id;
+            const eventType = gameParams.event_type;
+
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -504,6 +514,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     gameState,
                     _payload.request_game_state_hash
                 )
@@ -511,6 +522,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     gameState,
                     _payload.request_game_state_hash
                 );
