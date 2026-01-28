@@ -250,11 +250,12 @@
             } catch (error) { }
         };
 
-        async getGameState(_token, _gameId, _eventId, _hashKey) {
+        async getGameState(_token, _gameId, _eventId, _eventType, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'hash': _hashKey
                 };
@@ -266,11 +267,12 @@
             } catch (error) { }
         };
 
-        async saveGameScore(_token, _gameId, _eventId, _score, _hashKey) {
+        async saveGameScore(_token, _gameId, _eventId, _eventType, _score, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'game_score': _score,
                     'hash': _hashKey
@@ -283,11 +285,12 @@
             } catch (error) { }
         };
 
-        async saveGameState(_token, _gameId, _eventId, _gameState, _hashKey) {
+        async saveGameState(_token, _gameId, _eventId, _eventType, _gameState, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'game_state': _gameState,
                     'hash': _hashKey
@@ -301,11 +304,12 @@
         };
 
         //=====================
-        async getGameStateForEvent(_token, _gameId, _eventId, _hashKey) {
+        async getGameStateForEvent(_token, _gameId, _eventId, _eventType, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'hash': _hashKey
                 };
@@ -317,11 +321,12 @@
             } catch (error) { }
         };
 
-        async saveGameScoreForEvent(_token, _gameId, _eventId, _score, _hashKey) {
+        async saveGameScoreForEvent(_token, _gameId, _eventId, _eventType, _score, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'event_score': _score,
                     'game_id': _gameId,
                     'hash': _hashKey
@@ -334,11 +339,12 @@
             } catch (error) { }
         };
 
-        async saveGameStateForEvent(_token, _gameId, _eventId, _gameState, _hashKey) {
+        async saveGameStateForEvent(_token, _gameId, _eventId, _eventType, _gameState, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'state': _gameState,
                     'hash': _hashKey
@@ -357,7 +363,6 @@
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
             console.log('callApiAsPerEvent params...........', gameParams);
-            // if (gameParams.type !== "real") return;
 
             switch (_eventName) {
                 case 'RequestGameState':
