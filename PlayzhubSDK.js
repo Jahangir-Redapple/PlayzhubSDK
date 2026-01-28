@@ -250,11 +250,12 @@
             } catch (error) { }
         };
 
-        async getGameState(_token, _gameId, _eventId, _hashKey) {
+        async getGameState(_token, _gameId, _eventId, _eventType, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'hash': _hashKey
                 };
@@ -266,11 +267,12 @@
             } catch (error) { }
         };
 
-        async saveGameScore(_token, _gameId, _eventId, _score, _hashKey) {
+        async saveGameScore(_token, _gameId, _eventId, _eventType, _score, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'game_score': _score,
                     'hash': _hashKey
@@ -283,11 +285,12 @@
             } catch (error) { }
         };
 
-        async saveGameState(_token, _gameId, _eventId, _gameState, _hashKey) {
+        async saveGameState(_token, _gameId, _eventId, _eventType, _gameState, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'game_state': _gameState,
                     'hash': _hashKey
@@ -301,11 +304,12 @@
         };
 
         //=====================
-        async getGameStateForEvent(_token, _gameId, _eventId, _hashKey) {
+        async getGameStateForEvent(_token, _gameId, _eventId, _eventType, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'hash': _hashKey
                 };
@@ -317,11 +321,12 @@
             } catch (error) { }
         };
 
-        async saveGameScoreForEvent(_token, _gameId, _eventId, _score, _hashKey) {
+        async saveGameScoreForEvent(_token, _gameId, _eventId, _eventType, _score, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'event_score': _score,
                     'game_id': _gameId,
                     'hash': _hashKey
@@ -334,11 +339,12 @@
             } catch (error) { }
         };
 
-        async saveGameStateForEvent(_token, _gameId, _eventId, _gameState, _hashKey) {
+        async saveGameStateForEvent(_token, _gameId, _eventId, _eventType, _gameState, _hashKey) {
             try {
                 const headers = this.getHeaders("application/json", _token);
                 const body = {
                     'event_id': _eventId,
+                    'event_type': _eventType,
                     'game_id': _gameId,
                     'state': _gameState,
                     'hash': _hashKey
@@ -388,6 +394,7 @@
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
             const eventId = gameParams.event_id;
+            const eventType = gameParams.event_type;
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -407,12 +414,14 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.request_game_state_hash
                 )
                 : await this.getGameState(
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.request_game_state_hash
                 );
 
@@ -431,6 +440,7 @@
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
             const eventId = gameParams.event_id;
+            const eventType = gameParams.event_type;
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -449,6 +459,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.score,
                     _payload.score_hash
                 )
@@ -456,6 +467,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     _payload.score,
                     _payload.score_hash
                 );
@@ -470,6 +482,7 @@
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
             const eventId = gameParams.event_id;
+            const eventType = gameParams.event_type;
             const verify = await this.verifyGameSessionId(
                 token,
                 gameId,
@@ -504,6 +517,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     gameState,
                     _payload.request_game_state_hash
                 )
@@ -511,6 +525,7 @@
                     token,
                     gameId,
                     eventId,
+                    eventType,
                     gameState,
                     _payload.request_game_state_hash
                 );
