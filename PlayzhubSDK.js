@@ -16,7 +16,6 @@
                     reject("CryptoJS loaded but AES missing");
                 }
             };
-            // script.onerror = reject();
             script.onerror = () => reject("Failed to load CryptoJS");
             document.head.appendChild(script);
         });
@@ -53,7 +52,6 @@
         sendMessageForAnalytics(eventName, message) {
             const os = this.getMobileOperatingSystem();
             const data = JSON.stringify(message);
-            console.log(`sendMessageForAnalytics - ${eventName} called`, data);
             try {
                 this.trigger(eventName, data);
             } catch (e) {
@@ -82,7 +80,6 @@
 
         // Emit an event to be sent to the platform
         async emitEvent(eventName, payload) {
-            console.log(`Emit event: ${eventName} =====> ${JSON.stringify(payload)}`);
             this.sendMessageForAnalytics(eventName, payload);
             await this.callApiAsPerEvent(eventName, payload);
         };
@@ -98,19 +95,16 @@
                     const parsedData = typeof payload === 'string' ? JSON.parse(payload) : payload;
                     callback(parsedData);
                 } catch (error) {
-                    // console.error(`Error parsing data for event "${eventName}":`, error);
+                    console.error(`Error parsing data for event "${eventName}":`, error);
                 }
             });
-            // console.log(`Listener added for event: ${eventName}`);
         };
 
         trigger(eventName, payload) {
-            // console.log(`Triggering event: ${eventName}`, payload);
             // Ensure that the payload is parsed correctly
             try {
                 payload = typeof payload === 'string' ? JSON.parse(payload) : payload;
             } catch (error) {
-                // console.error(`Error parsing payload for event ${eventName}:`, error);
             }
             // Check if any listener is attached for the eventName
             if (this.listeners[eventName]) {
@@ -123,7 +117,6 @@
             window.addEventListener('message', (event) => {
                 const { eventName, data } = event.data || {};
                 if (eventName && this.listeners[eventName]) {
-                    // console.log(`Received event: ${eventName}`, data);
                     // Parse the data and trigger the event
                     this.trigger(eventName, data);
                 }
@@ -158,7 +151,6 @@
             try {
                 if (body != null) {
                     if (body instanceof FormData) {
-                        console.log("Body is FormData, setting it to null");
                         body = null;
                     }
                 }
@@ -362,8 +354,6 @@
         //region- Call API as per event 
         async callApiAsPerEvent(_eventName, _payload,) {
             const gameParams = JSON.parse(this.getLaunchParams());
-            console.log('callApiAsPerEvent params...........', gameParams);
-            // if (gameParams.type !== "real") return;
 
             switch (_eventName) {
                 case 'RequestGameState':
@@ -388,7 +378,6 @@
 
         async handleGameStateFetchApi(_payload, gameParams) {
             await this.initializeKey(_payload.encKey, _payload.iv);
-            console.log('handleGameStateFetchApi params...........', gameParams);
 
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
@@ -401,7 +390,6 @@
                 sessionId,
                 _payload.session_verify_hash
             );
-            console.log('HandleGameStateFetchApi VerifyGameSessionId: ', verify);
             if (!verify || !verify.is_verified || verify.status !== 1) {
                 console.error(`Session verification failed`);
                 return;
@@ -425,7 +413,6 @@
                     _payload.request_game_state_hash
                 );
 
-            console.log('HandleGameStateFetchApi GetGameState: ', response);
             const gameState = isEventGame
                 ? response?.data?.state ?? null
                 : response?.data?.game_state ?? null;
@@ -434,8 +421,6 @@
 
         async handleGameScoreUpdateApi(_payload, gameParams) {
             await this.initializeKey(_payload.encKey, _payload.iv);
-            console.log('handleGameScoreUpdateApi params...........', gameParams);
-            console.log('handleGameScoreUpdateApi _payload...........', _payload);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
@@ -447,7 +432,6 @@
                 sessionId,
                 _payload.session_verify_hash
             );
-            console.log('HandleGameScoreUpdateApi VerifyGameSessionId: ', verify);
             if (!verify || !verify.is_verified || verify.status !== 1) {
                 console.error(`Session verification failed`);
                 return;
@@ -471,13 +455,10 @@
                     _payload.score,
                     _payload.score_hash
                 );
-            console.log('HandleGameScoreUpdateApi SaveGameScore: ', response);
         };
 
         async handleSaveGameStateApi(_payload, gameParams) {
             await this.initializeKey(_payload.encKey, _payload.iv);
-            console.log('handleSaveGameStateApi params...........', gameParams);
-            console.log('handleSaveGameStateApi _payload...........', _payload);
             const gameId = gameParams.game_id;
             const sessionId = gameParams.session_id;
             const token = gameParams.token;
@@ -489,21 +470,15 @@
                 sessionId,
                 _payload.session_verify_hash
             );
-            console.log('HandleSaveGameStateApi VerifyGameSessionId: ', verify);
             if (!verify || !verify.is_verified || verify.status !== 1) {
                 console.error(`Session verification failed`);
                 return;
             }
 
             let gameState = _payload.game_state;
-            console.log("gameState..............", gameState);
-            console.log("typeof gameState..............", typeof gameState);
-
             if (typeof gameState === "string") {
                 try {
                     gameState = JSON.parse(gameState);
-                    console.log("gameState inside try...", gameState);
-
                 } catch (e) {
                     console.error("[PlayzhubSDK] Invalid game_state JSON", e);
                     gameState = null;
@@ -529,23 +504,17 @@
                     gameState,
                     _payload.request_game_state_hash
                 );
-            console.log('HandleSaveGameStateApi SaveGameState: ', response);
         };
         //#endregion
 
         //#region-Crypto Part
         async initializeKey(_base64Key, _base64Iv) {
-            console.log('initializeKey KEY: ', _base64Key);
-            console.log('initializeKey IV: ', _base64Iv);
-
             if (!window.CryptoJS) {
                 console.error('CryptoJS not loaded');
                 return;
             }
             this.key = CryptoJS.enc.Base64.parse(_base64Key);
             this.iv = CryptoJS.enc.Base64.parse(_base64Iv);
-            console.log('initializeKey this.key: ', this.key);
-            console.log('initializeKey this.iv : ', this.iv);
         };
         async encrypt(plaintext) {
             if (!this.key || !this.iv) {
@@ -573,13 +542,11 @@
         //#endregion
 
     }
-    // window.PlayzhubSDk = new PlayzhubSDk_E6();
     (async function bootstrap() {
         try {
             await loadCryptoJS();
             window.PlayzhubSDk = new PlayzhubSDk();
             window.dispatchEvent(new Event('PlayzhubSDKReady'));
-            console.log('PlayzhubSDK initialized');
         } catch (err) {
             console.error("[PlayzhubSDK ERROR]", err);
         }
